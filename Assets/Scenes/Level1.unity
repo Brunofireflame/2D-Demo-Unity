@@ -250,6 +250,7 @@ GameObject:
   - component: {fileID: 438556879}
   - component: {fileID: 438556883}
   - component: {fileID: 438556884}
+  - component: {fileID: 438556885}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -390,6 +391,26 @@ MonoBehaviour:
     m_Bits: 64
   GrappleSpeed: 6
   GrappleDistance: 5
+--- !u!95 &438556885
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438556878}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 346b8a7cfaea1b6499f54fc9f43e990b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
