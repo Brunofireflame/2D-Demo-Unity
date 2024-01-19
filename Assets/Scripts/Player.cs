@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public enum MovementState
+    {
+        Idle,
+        Run,
+        Jump
+    }
     //Fields
     public float RunSpeed;
     private Rigidbody2D _rigidbody;
@@ -14,12 +20,16 @@ public class Player : MonoBehaviour
     private Collider2D GrappleObject;
     public float GrappleDistance;
     private Vector2 direction = Vector2.zero;
+    private Animator _animator;
+    private SpriteRenderer _spriteRenderer;
 
     // Start is called before the first frame update
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _collider = GetComponent<BoxCollider2D>();
+        _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -53,7 +63,7 @@ public class Player : MonoBehaviour
             }
         }
 
-
+        UpdateAnimation(horizontalInputs);
     }
 
    private void OnTriggerEnter2D(Collider2D collision)
@@ -74,11 +84,28 @@ public class Player : MonoBehaviour
         }
     }
 
-    bool IsGrounded()
+    private bool IsGrounded()
 	{
 		return Physics2D.BoxCast(_collider.bounds.center, _collider.bounds.size, 0, Vector2.down, 0.1f, GroundMask);
 	}
 
+    private void UpdateAnimation(float horizontalInput)
+    {
+        MovementState currentState;
+        if (horizontalInput > 0)
+        {
+            _spriteRenderer.flipX = false;
+        }
+        else if (horizontalInput < 0)
+        {
+            _spriteRenderer.flipX = true;
+        }
 
+        if (!IsGrounded()) currentState = MovementState.Jump;
+        else if (horizontalInput != 0) currentState = MovementState.Run;
+        else currentState = MovementState.Idle;
+        _animator.SetInteger("MovementState", (int)currentState);
+    }    
     
+
 }
