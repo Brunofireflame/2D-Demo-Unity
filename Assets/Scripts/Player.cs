@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -8,7 +10,8 @@ public class Player : MonoBehaviour
     {
         Idle,
         Run,
-        Jump
+        Jump,
+        Grappling
     }
     //Fields
     public float RunSpeed;
@@ -19,9 +22,10 @@ public class Player : MonoBehaviour
     public float GrappleSpeed;
     private Collider2D GrappleObject;
     public float GrappleDistance;
-    private Vector2 direction = Vector2.zero;
+    private Vector2 GrappleDirection = Vector2.zero;
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
+    private bool isGrappling = false;
 
     // Start is called before the first frame update
     void Start()
@@ -36,13 +40,30 @@ public class Player : MonoBehaviour
     void Update()
     {
         float horizontalInputs = Input.GetAxis("Horizontal");
-        
 
-        //declares a direction from arrow keys
-        if (Input.GetKeyDown("left")) direction = Vector2.left;
-        else if (Input.GetKeyDown("right")) direction = Vector2.right;
-        else if (Input.GetKeyDown("down")) direction = Vector2.down;
-        else if (Input.GetKeyDown("up")) direction = Vector2.up;
+
+        //gets a direction from arrow keys
+        if (Input.GetKeyDown("space")) isGrappling = false;
+        if (Input.GetKeyDown("left"))
+        {
+            isGrappling = true;
+            GrappleDirection = Vector2.left;
+        }
+        else if (Input.GetKeyDown("right"))
+        {
+            isGrappling = true;
+            GrappleDirection = Vector2.right;
+        }
+        else if (Input.GetKeyDown("down"))
+        {
+            isGrappling = true;
+            GrappleDirection = Vector2.down;
+        }
+        else if (Input.GetKeyDown("up"))
+        {
+            isGrappling = true;
+            GrappleDirection = Vector2.up;
+        }
 
         if (horizontalInputs != 0)
         _rigidbody.velocity = new Vector2(RunSpeed * horizontalInputs, _rigidbody.velocity.y);
@@ -52,17 +73,7 @@ public class Player : MonoBehaviour
             _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, JumpSpeed);
         }
 
-        //Grappling
-        if (direction != Vector2.zero)
-        {
-            var grappleCast = Physics2D.BoxCast(_collider.bounds.center, new Vector2(0.2f,0.2f), 0, direction, GrappleDistance, GroundMask); 
-            GrappleObject = grappleCast.collider;
-            if (GrappleObject != null)
-            {
-                _rigidbody.velocity = direction * GrappleSpeed;
-            }
-        }
-
+        if (isGrappling) Grapple(GrappleDirection);
         UpdateAnimation(horizontalInputs);
     }
 
@@ -80,7 +91,8 @@ public class Player : MonoBehaviour
         if (GrappleObject == collision.collider)
         {
             GrappleObject = null;
-            direction = Vector2.zero;
+            GrappleDirection = Vector2.zero;
+            isGrappling = false;
         }
     }
 
@@ -89,6 +101,7 @@ public class Player : MonoBehaviour
 		return Physics2D.BoxCast(_collider.bounds.center, _collider.bounds.size, 0, Vector2.down, 0.1f, GroundMask);
 	}
 
+   //animatior
     private void UpdateAnimation(float horizontalInput)
     {
         MovementState currentState;
@@ -101,11 +114,39 @@ public class Player : MonoBehaviour
             _spriteRenderer.flipX = true;
         }
 
-        if (!IsGrounded()) currentState = MovementState.Jump;
+        if (isGrappling) currentState = MovementState.Grappling;
+        else if (!IsGrounded()) currentState = MovementState.Jump;
         else if (horizontalInput != 0) currentState = MovementState.Run;
         else currentState = MovementState.Idle;
         _animator.SetInteger("MovementState", (int)currentState);
     }    
+
+
+    private void Grapple(Vector2 direction)
+    {
+            var grappleCast = Physics2D.BoxCast(_collider.bounds.center, new Vector2(0.2f, 0.2f), 0, direction, GrappleDistance, GroundMask);
+        if (grappleCast.collider != null)
+        {
+            GrappleObject = grappleCast.collider;
+            Box potentialBox = GrappleObject.gameObject.GetComponent<Box>();
+            if (potentialBox != null)
+            {
+                Destroy(potentialBox.gameObject);
+                Debug.Log("box hit");
+            }
+            else if (GrappleObject != null)
+            {
+                _rigidbody.velocity = direction * GrappleSpeed;
+                Debug.Log(GrappleObject + "hit");
+            }
+            
+        }
+        else
+        {
+            isGrappling = false;
+            Debug.Log("not grappling");
+        }
+    }
     
 
 }
