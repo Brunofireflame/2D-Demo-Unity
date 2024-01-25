@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
     private bool isGrappling = false;
+    private Animator _grappleAnimator;
+    public GameObject GrappleGameObject;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +36,7 @@ public class Player : MonoBehaviour
         _collider = GetComponent<BoxCollider2D>();
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        _grappleAnimator = GrappleGameObject.GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -73,7 +76,12 @@ public class Player : MonoBehaviour
             _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, JumpSpeed);
         }
 
-        if (isGrappling) Grapple(GrappleDirection);
+        if (isGrappling)
+        {
+            Grapple(GrappleDirection);
+            //_grappleAnimator.SetInteger("GrappleState", 1);
+        }
+       // else _grappleAnimator.SetInteger("GrappleState", 0);
         UpdateAnimation(horizontalInputs);
     }
 
@@ -124,7 +132,7 @@ public class Player : MonoBehaviour
 
     private void Grapple(Vector2 direction)
     {
-            var grappleCast = Physics2D.BoxCast(_collider.bounds.center, new Vector2(0.2f, 0.2f), 0, direction, GrappleDistance, GroundMask);
+            var grappleCast = Physics2D.BoxCast(_collider.bounds.center, new Vector2(0.2f, 0.2f), 0, direction, GrappleDistance, 192);
         if (grappleCast.collider != null)
         {
             GrappleObject = grappleCast.collider;
