@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -43,8 +44,8 @@ public class Player : MonoBehaviour
     void Update()
     {
         float horizontalInputs = Input.GetAxis("Horizontal");
-
-
+        //restart button
+        if (Input.GetKeyDown("r")) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         //gets a direction from arrow keys
         if (Input.GetKeyDown("space")) isGrappling = false;
         if (Input.GetKeyDown("left"))
@@ -68,8 +69,8 @@ public class Player : MonoBehaviour
             GrappleDirection = Vector2.up;
         }
 
-        if (horizontalInputs != 0)
-        _rigidbody.velocity = new Vector2(RunSpeed * horizontalInputs, _rigidbody.velocity.y);
+
+        if (horizontalInputs != 0)  _rigidbody.velocity = new Vector2(RunSpeed * horizontalInputs, _rigidbody.velocity.y);
 
         if (Input.GetButtonDown("Jump")&& IsGrounded())
         {
@@ -90,7 +91,7 @@ public class Player : MonoBehaviour
         Fruit potentialFruit = collision.gameObject.GetComponent<Fruit>();
         if (potentialFruit != null)
         {
-            Destroy(potentialFruit.gameObject);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex+1);
 		}
 	}
 
